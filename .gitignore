@@ -1,5 +1,7 @@
 # Other files
 results/results_scr.xlsx
+linprog/
+results/scr.xlsx
 
 # Microsoft temp files
 [~][$]*
