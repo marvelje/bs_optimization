@@ -17,6 +17,20 @@ Sample data can be found here: https://github.com/marvelje/bs_optimization/tree/
 - I then created spreads (profitability expressed in basis points, or bps), along with upper and lower bounds. I.e., how much will I allow the products to grow and shrink during the optimization.
 - To start, I generated somewhat arbitrary numbers, ensuring only that Assets = Liabilities and the constraints are currently satisfied
 
+## Constraints
+
+This analysis consider a simplified framework of the capital / resource constraints that banks currently face
+- Risk weighted assets:
+    - This framework turns a given balance into a Risk Weight equivalent. For example, a mortgage loan may have a Standardized RWA of 50%. This means that a 100 dollar mortgage will generate Standardized RWA of 50.
+    - The regulation states that the bank must have equity equal to a fixed % of it's Risk Weighted Assets.
+    - There are two RWA frameworks: Advanced and Standardized. A given product may have two different weights across each of these frameworks
+- GSIB:
+    - This is not a standalone constraint, but rather adds to the RWA minimums described above.
+    - For example, the RWA minimum may be 8% plus a GSIB surchage. This surcharge is initially 3% in my optimization. The GSIB surcharge scales up or down with changes to the balance sheet, with some products contributing more to the GSIB surcharge than others.
+    - In reality, this is a "stair-step" framework. The GSIB surcharge moves in increments of 0.5% A given score may place you in the 3% "bucket" until you hit the subsequent threshold, bumping you up to 3.5%. To keep this a linear problem, I removed this stair step and interpolated the GSIB contribution. In othe words, a small increase in balances may make the surcharge 3.05%, when in reality we would've stayed in the 3% bucket. This also makes the problem non-linear as the ineuqality constraint depends on the balances themselves.
+- Leverage:
+    - This works similarly to RWA, but is a bit more straightforward. For example, the leverage requirement for CET1 states that you must have enough Equity to cover at least a fied % of the total assets. There is no intermediate step of calculating the GSIB add-on.
+
 ## Modeling
 
 The optimization includes 10 inequality constraints (pertaining to regulatory capital) and 1 equality constraint (assets must equal liabilities). Eight of the 10 inequality constraints are non-linear given that the coefficient of the constraint is partly dependent on the balances in the optimization (for those with a banking background, I've linearized the GSIB contribution to add to the constraint).
